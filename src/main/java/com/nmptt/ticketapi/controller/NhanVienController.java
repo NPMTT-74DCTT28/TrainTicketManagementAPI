@@ -29,12 +29,12 @@ public class NhanVienController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/{maNhanVien}")
-    public ResponseEntity<ApiResponse<NhanVienResponse>> getNhanVienByMa(@PathVariable String maNhanVien) {
-        NhanVienResponse data = nhanVienService.getNhanVienByMa(maNhanVien);
+    @GetMapping("/{id}")
+    public ResponseEntity<ApiResponse<NhanVienResponse>> getNhanVienByMa(@PathVariable int id) {
+        NhanVienResponse data = nhanVienService.getNhanVienById(id);
 
         ApiResponse<NhanVienResponse> response = ApiResponse.<NhanVienResponse>builder()
-                .code(HttpStatus.FOUND.value())
+                .code(HttpStatus.OK.value())
                 .message("Lấy thông tin nhân viên thành công!")
                 .data(data)
                 .build();
@@ -50,6 +50,30 @@ public class NhanVienController {
                 .message("Thêm thông tin nhân viên thành công!")
                 .data(data)
                 .build();
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @PutMapping
+    public ResponseEntity<ApiResponse<NhanVienResponse>> updateNhanVien(@RequestBody NhanVienRequest request) {
+        NhanVienResponse data = nhanVienService.updateNhanVien(request);
+
+        ApiResponse<NhanVienResponse> response = ApiResponse.<NhanVienResponse>builder()
+                .code(HttpStatus.OK.value())
+                .message("Cập nhật thông tin nhân viên thành công!")
+                .data(data)
+                .build();
         return ResponseEntity.ok(response);
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ApiResponse<Void>> deleteNhanVien(@PathVariable int id) {
+        nhanVienService.deleteNhanVien(id);
+
+        ApiResponse<Void> response = ApiResponse.<Void>builder()
+                .code(HttpStatus.OK.value())
+                .message("Xoá nhân viên thành công!")
+                .build();
+        return ResponseEntity.ok(response);
+    }
+
 }

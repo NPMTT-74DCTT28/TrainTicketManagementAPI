@@ -6,6 +6,7 @@ import java.time.LocalDate;
 
 @Data
 public class NhanVienRequest {
+    private int id;
     private String maNhanVien;
     private String matKhau;
     private String hoTen;

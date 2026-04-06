@@ -25,10 +25,9 @@ public class NhanVienServiceImpl implements NhanVienService {
                 .collect(Collectors.toList());
     }
 
-    @Override
-    public NhanVienResponse getNhanVienByMa(String maNhanVien) {
-        NhanVien nhanVien = nhanVienRepository.findByMaNhanVien(maNhanVien)
-                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy nhân viên với mã: " + maNhanVien));
+    public NhanVienResponse getNhanVienById(int id) {
+        NhanVien nhanVien = nhanVienRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy thông tin nhân viên."));
         return mapToResponse(nhanVien);
     }
 
@@ -51,20 +50,46 @@ public class NhanVienServiceImpl implements NhanVienService {
         return mapToResponse(nhanVienRepository.save(newNhanVien));
     }
 
+    @Override
+    public NhanVienResponse updateNhanVien(NhanVienRequest request) {
+        checkTrung(request);
+
+        NhanVien existing = nhanVienRepository.findById(request.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Id không tồn tại"));
+
+        existing.setHoTen(request.getHoTen());
+        existing.setNgaySinh(request.getNgaySinh());
+        existing.setGioiTinh(request.getGioiTinh());
+        existing.setSdt(request.getSdt());
+        existing.setEmail(request.getEmail());
+        existing.setDiaChi(request.getDiaChi());
+        existing.setVaiTro(request.getVaiTro());
+
+        return mapToResponse(nhanVienRepository.save(existing));
+    }
+
+    @Override
+    public void deleteNhanVien(int id) {
+        NhanVien nhanVien = nhanVienRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Id không hợp lệ."));
+        nhanVienRepository.delete(nhanVien);
+    }
+
     private void checkTrung(NhanVienRequest request) {
-        if (nhanVienRepository.findByMaNhanVien(request.getMaNhanVien()).isPresent()) {
-            throw new DuplicateDataException("Mã nhân viên đã tồn tại: " + request.getMaNhanVien());
+        if (nhanVienRepository.existsByMaNhanVienAndIdNot(request.getMaNhanVien(), request.getId())) {
+            throw new DuplicateDataException("Mã nhân viên đã tồn tại.");
         }
-        if (nhanVienRepository.findBySdt(request.getSdt()).isPresent()) {
-            throw new DuplicateDataException("SĐT đã được sử dụng: " + request.getSdt());
+        if (nhanVienRepository.existsBySdtAndIdNot(request.getSdt(), request.getId())) {
+            throw new DuplicateDataException("SĐT đã được sử dụng.");
         }
-        if (nhanVienRepository.findByEmail(request.getEmail()).isPresent()) {
-            throw new DuplicateDataException("Email đã được sử dụng: " + request.getEmail());
+        if (request.getEmail() != null && nhanVienRepository.existsByEmailAndIdNot(request.getEmail(), request.getId())) {
+            throw new DuplicateDataException("Email đã được sử dụng.");
         }
     }
 
     private NhanVienResponse mapToResponse(NhanVien nhanVien) {
         return NhanVienResponse.builder()
+                .id(nhanVien.getId())
                 .maNhanVien(nhanVien.getMaNhanVien())
                 .hoTen(nhanVien.getHoTen())
                 .ngaySinh(nhanVien.getNgaySinh())

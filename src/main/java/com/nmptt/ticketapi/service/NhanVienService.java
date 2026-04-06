@@ -8,7 +8,11 @@ import java.util.List;
 public interface NhanVienService {
     List<NhanVienResponse> getAllNhanVien();
 
-    NhanVienResponse getNhanVienByMa(String maNhanVien);
+    NhanVienResponse getNhanVienById(int id);
 
     NhanVienResponse createNhanVien(NhanVienRequest nhanVienRequest);
+
+    NhanVienResponse updateNhanVien(NhanVienRequest nhanVienRequest);
+
+    void deleteNhanVien(int id);
 }

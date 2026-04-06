@@ -8,6 +8,7 @@ import java.time.LocalDate;
 @Data
 @Builder
 public class NhanVienResponse {
+    private int id;
     private String maNhanVien;
     private String hoTen;
     private LocalDate ngaySinh;
