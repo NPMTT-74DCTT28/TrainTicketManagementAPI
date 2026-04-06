@@ -22,16 +22,16 @@ public class NhanVienController {
         List<NhanVienResponse> data = nhanVienService.getAllNhanVien();
 
         ApiResponse<List<NhanVienResponse>> response = ApiResponse.<List<NhanVienResponse>>builder()
-                .code(HttpStatus.OK.value())
+                .code(HttpStatus.FOUND.value())
                 .message("Lấy danh sách nhân viên thành công!")
                 .data(data)
                 .build();
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/{maNhanVien}")
-    public ResponseEntity<ApiResponse<NhanVienResponse>> getNhanVienByMa(@PathVariable String maNhanVien) {
-        NhanVienResponse data = nhanVienService.getNhanVienByMa(maNhanVien);
+    @GetMapping("/{id}")
+    public ResponseEntity<ApiResponse<NhanVienResponse>> getNhanVienByMa(@PathVariable int id) {
+        NhanVienResponse data = nhanVienService.getNhanVienById(id);
 
         ApiResponse<NhanVienResponse> response = ApiResponse.<NhanVienResponse>builder()
                 .code(HttpStatus.OK.value())
@@ -46,10 +46,34 @@ public class NhanVienController {
         NhanVienResponse data = nhanVienService.createNhanVien(request);
 
         ApiResponse<NhanVienResponse> response = ApiResponse.<NhanVienResponse>builder()
-                .code(HttpStatus.OK.value())
+                .code(HttpStatus.CREATED.value())
                 .message("Thêm thông tin nhân viên thành công!")
+                .data(data)
+                .build();
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @PutMapping
+    public ResponseEntity<ApiResponse<NhanVienResponse>> updateNhanVien(@RequestBody NhanVienRequest request) {
+        NhanVienResponse data = nhanVienService.updateNhanVien(request);
+
+        ApiResponse<NhanVienResponse> response = ApiResponse.<NhanVienResponse>builder()
+                .code(HttpStatus.OK.value())
+                .message("Cập nhật thông tin nhân viên thành công!")
                 .data(data)
                 .build();
         return ResponseEntity.ok(response);
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ApiResponse<Void>> deleteNhanVien(@PathVariable int id) {
+        nhanVienService.deleteNhanVien(id);
+
+        ApiResponse<Void> response = ApiResponse.<Void>builder()
+                .code(HttpStatus.OK.value())
+                .message("Xoá nhân viên thành công!")
+                .build();
+        return ResponseEntity.ok(response);
+    }
+
 }
