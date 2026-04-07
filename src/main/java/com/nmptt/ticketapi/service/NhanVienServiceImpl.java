@@ -9,6 +9,7 @@ import com.nmptt.ticketapi.exception.BadCredentialsException;
 import com.nmptt.ticketapi.exception.DuplicateDataException;
 import com.nmptt.ticketapi.exception.ResourceNotFoundException;
 import com.nmptt.ticketapi.repository.NhanVienRepository;
+import com.nmptt.ticketapi.specification.NhanVienSpecification;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -104,6 +105,15 @@ public class NhanVienServiceImpl implements NhanVienService {
         String encodedPassword = passwordEncoder.encode(request.getNewPassword());
         nhanVien.setMatKhau(encodedPassword);
         nhanVienRepository.save(nhanVien);
+    }
+
+    @Override
+    public List<NhanVienResponse> searchNhanVien(String keyword, String gioiTinh, String vaiTro) {
+        List<NhanVien> staffs = nhanVienRepository.findAll(NhanVienSpecification.filter(keyword, gioiTinh, vaiTro));
+
+        return staffs.stream()
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
     }
 
     private void checkTrung(NhanVienRequest request) {

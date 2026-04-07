@@ -21,4 +21,6 @@ public interface NhanVienService {
     NhanVienResponse login(LoginRequest request);
 
     void changePassword(ChangePasswordRequest request);
+
+    List<NhanVienResponse> searchNhanVien(String keyword, String gioiTinh, String vaiTro);
 }
