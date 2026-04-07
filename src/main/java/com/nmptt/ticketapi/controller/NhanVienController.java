@@ -76,4 +76,18 @@ public class NhanVienController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/search")
+    public ResponseEntity<ApiResponse<List<NhanVienResponse>>> searchNhanVien(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) String gioiTinh,
+            @RequestParam(required = false) String vaiTro) {
+        List<NhanVienResponse> data = nhanVienService.searchNhanVien(keyword, gioiTinh, vaiTro);
+
+        ApiResponse<List<NhanVienResponse>> response = ApiResponse.<List<NhanVienResponse>>builder()
+                .code(HttpStatus.OK.value())
+                .message("Lấy danh sách nhân viên thành công!")
+                .data(data)
+                .build();
+        return ResponseEntity.ok(response);
+    }
 }
