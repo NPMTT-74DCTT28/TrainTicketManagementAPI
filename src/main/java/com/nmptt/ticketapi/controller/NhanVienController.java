@@ -85,7 +85,7 @@ public class NhanVienController {
 
         ApiResponse<List<NhanVienResponse>> response = ApiResponse.<List<NhanVienResponse>>builder()
                 .code(HttpStatus.OK.value())
-                .message("Lấy danh sách nhân viên thành công!")
+                .message("Tìm kiếm nhân viên thành công!")
                 .data(data)
                 .build();
         return ResponseEntity.ok(response);
