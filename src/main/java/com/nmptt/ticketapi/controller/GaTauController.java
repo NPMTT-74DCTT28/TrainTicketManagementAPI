@@ -45,9 +45,10 @@ public class GaTauController {
                 .build();
         return ResponseEntity.ok(response);
     }
-    @DeleteMapping
-    public ResponseEntity<ApiResponse<Void>> deleteGaTau(@RequestBody GaTau gaTau) {
-        gaTauService.deleteGaTau(gaTau.getId());
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ApiResponse<Void>> deleteGaTau(@PathVariable Integer id) {
+        gaTauService.deleteGaTau(id);
         ApiResponse<Void> response = ApiResponse.<Void>builder()
                 .code(HttpStatus.OK.value())
                 .message("Xóa ga tàu thành công!")

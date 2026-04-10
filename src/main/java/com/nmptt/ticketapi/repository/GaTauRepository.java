@@ -11,5 +11,8 @@ import java.util.Optional;
 public interface GaTauRepository extends JpaRepository<GaTau, Integer> {
     Optional<GaTau> findById(Integer id);
     List<GaTau> findByMaGaLikeOrTenGaLike(String maGa, String tenGa);
-    boolean existsByMaGaOrTenGaAndIdNot(String maGa, String tenGa, Integer id);
+
+    boolean existsByMaGaAndIdNot(String maGa, Integer id);
+
+    boolean existsByTenGaAndIdNot(String tenGa, Integer id);
 }

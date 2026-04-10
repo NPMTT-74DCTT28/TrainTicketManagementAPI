@@ -43,8 +43,11 @@ public class GaTauServiceImpl implements GaTauService{
         return gaTauRepository.findByMaGaLikeOrTenGaLike(key, key);
     }
     private void checkTrung(GaTau gaTau) {
-        if (gaTauRepository.existsByMaGaOrTenGaAndIdNot(gaTau.getMaGa(), gaTau.getTenGa(), gaTau.getId())){
-            throw new DuplicateDataException("Mã ga/ Tên ga đã tồn tại!");
+        if (gaTauRepository.existsByMaGaAndIdNot(gaTau.getMaGa(), gaTau.getId())) {
+            throw new DuplicateDataException("Mã ga đã tồn tại!");
+        }
+        if (gaTauRepository.existsByTenGaAndIdNot(gaTau.getTenGa(), gaTau.getId())) {
+            throw new DuplicateDataException("Tên ga đã tồn tại!");
         }
     }
 }
