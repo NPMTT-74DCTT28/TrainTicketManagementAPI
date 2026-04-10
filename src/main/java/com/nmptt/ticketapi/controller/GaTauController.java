@@ -1,0 +1,69 @@
+package com.nmptt.ticketapi.controller;
+
+import com.nmptt.ticketapi.dto.response.ApiResponse;
+import com.nmptt.ticketapi.entity.GaTau;
+import com.nmptt.ticketapi.service.GaTauService;
+import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/v1/ga_tau")
+@AllArgsConstructor
+public class GaTauController {
+    private final GaTauService gaTauService;
+    @GetMapping
+    public ResponseEntity<ApiResponse<List<GaTau>>> getAllGaTau() {
+        List<GaTau> data = gaTauService.getAllGaTau();
+        ApiResponse<List<GaTau>> response = ApiResponse.<List<GaTau>>builder()
+                .code(HttpStatus.OK.value())
+                .message("Lấy danh sách ga tàu thành công!")
+                .data(data)
+                .build();
+        return ResponseEntity.ok(response);
+    }
+    @PostMapping
+    public ResponseEntity<ApiResponse<GaTau>> createGaTau(@RequestBody GaTau gaTau) {
+        GaTau data = gaTauService.createGaTau(gaTau);
+        ApiResponse<GaTau> response = ApiResponse.<GaTau>builder()
+                .code(HttpStatus.CREATED.value())
+                .message("Thêm mới ga tàu thành công!")
+                .data(data)
+                .build();
+        return ResponseEntity.ok(response);
+    }
+    @PutMapping
+    public ResponseEntity<ApiResponse<GaTau>> updateGaTau(@RequestBody GaTau gaTau) {
+        GaTau data = gaTauService.updateGaTau(gaTau);
+        ApiResponse<GaTau> response = ApiResponse.<GaTau>builder()
+                .code(HttpStatus.OK.value())
+                .message("Cập nhật ga tàu thành công!")
+                .data(data)
+                .build();
+        return ResponseEntity.ok(response);
+    }
+    @DeleteMapping
+    public ResponseEntity<ApiResponse<Void>> deleteGaTau(@RequestBody GaTau gaTau) {
+        gaTauService.deleteGaTau(gaTau.getId());
+        ApiResponse<Void> response = ApiResponse.<Void>builder()
+                .code(HttpStatus.OK.value())
+                .message("Xóa ga tàu thành công!")
+                .build();
+        return ResponseEntity.ok(response);
+    }
+    @GetMapping("/search")
+    public ResponseEntity<ApiResponse<List<GaTau>>> searchGaTau(
+            @RequestParam(required = false, defaultValue = "") String key) {
+        List<GaTau> data = gaTauService.searchGaTau(key);
+        ApiResponse<List<GaTau>> response = ApiResponse.<List<GaTau>>builder()
+                .code(HttpStatus.OK.value())
+                .message("Tìm kiếm ga tàu thành công!")
+                .data(data)
+                .build();
+        return ResponseEntity.ok(response);
+    }
+
+}
