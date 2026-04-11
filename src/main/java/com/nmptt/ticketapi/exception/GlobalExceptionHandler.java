@@ -20,23 +20,25 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Void>> handleException(Exception e) {
-        return getResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Đã xảy ra lỗi hệ thống: " + e.getMessage());
+        return getResponse(HttpStatus.INTERNAL_SERVER_ERROR,
+                "Đã xảy ra lỗi hệ thống: " + e.getMessage());
     }
 
     @ExceptionHandler(DuplicateDataException.class)
     public ResponseEntity<ApiResponse<Void>> handleDuplicateDataException(DuplicateDataException e) {
-        return getResponse(HttpStatus.CONFLICT, e.getMessage());
+        return getResponse(HttpStatus.CONFLICT,
+                "Lỗi trùng lặp dữ liệu: " + e.getMessage());
     }
 
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ApiResponse<Void>> handleResourceNotFoundException(ResourceNotFoundException e) {
-        return getResponse(HttpStatus.NOT_FOUND, e.getMessage());
+        return getResponse(HttpStatus.NOT_FOUND,
+                "Lỗi không tìm thấy tài nguyên: " + e.getMessage());
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ApiResponse<Void>> handleDataIntegrityViolationException(DataIntegrityViolationException e) {
         return getResponse(HttpStatus.BAD_REQUEST,
-                "Không thể xoá dữ liệu này vì đang bị ràng buộc bởi dữ liệu khác.\n" +
-                        "Ví dụ: Nhân viên đã từng bán vé.");
+                "Xảy ra lỗi vi phạm tính toàn vẹn dữ liệu: " + e.getMessage());
     }
 }
