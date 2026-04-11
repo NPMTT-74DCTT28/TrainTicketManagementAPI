@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Máy chủ: 127.0.0.1
--- Thời gian đã tạo: Th4 04, 2026 lúc 11:51 AM
+-- Thời gian đã tạo: Th4 11, 2026 lúc 04:23 PM
 -- Phiên bản máy phục vụ: 10.4.32-MariaDB
 -- Phiên bản PHP: 8.2.12
 
@@ -27,18 +27,10 @@ DELIMITER $$
 --
 -- Thủ tục
 --
-DROP PROCEDURE IF EXISTS `sp_DoanhThuBayNgay`$$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_DoanhThuBayNgay` ()   BEGIN
-SELECT
-    DATE (ngay_dat) AS ngay, COALESCE (SUM(gia_ve), 0) AS doanh_thu
-FROM ve_tau
-WHERE (CURDATE() - DATE (ngay_dat) BETWEEN 0 AND 7) AND trang_thai = 'Đã thanh toán'
-GROUP BY DATE (ngay_dat)
-ORDER BY ngay ASC;
-END$$
-
-DROP PROCEDURE IF EXISTS sp_DoanhSo $$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_ThongKeDoanhSo` (IN `p_thang` INT, IN `p_nam` INT)   BEGIN
+DROP PROCEDURE IF EXISTS `sp_DoanhSo`$$
+CREATE
+    DEFINER = `root`@`localhost` PROCEDURE `sp_DoanhSo`(IN `p_thang` INT, IN `p_nam` INT)
+BEGIN
 SELECT nv.ma_nhan_vien,
        nv.ho_ten,
        COUNT(vt.id)                as so_ve_ban,
@@ -53,20 +45,37 @@ GROUP BY nv.id
 ORDER BY doanh_so DESC;
 END$$
 
-DROP PROCEDURE IF EXISTS sp_DoanhThuTheoNgay $$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_ThongKeDoanhThuTheoNgay` (IN `p_ngay_bat_dau` DATE, IN `p_ngay_ket_thuc` DATE)   BEGIN
+DROP PROCEDURE IF EXISTS `sp_DoanhThuBayNgay`$$
+CREATE
+    DEFINER = `root`@`localhost` PROCEDURE `sp_DoanhThuBayNgay`()
+BEGIN
+    SELECT DATE(ngay_dat)           AS ngay,
+           COALESCE(SUM(gia_ve), 0) AS doanh_thu
+    FROM ve_tau
+    WHERE (CURDATE() - DATE(ngay_dat) BETWEEN 0 AND 7)
+      AND trang_thai = 'Đã thanh toán'
+    GROUP BY DATE(ngay_dat)
+    ORDER BY ngay ASC;
+END$$
+
+DROP PROCEDURE IF EXISTS `sp_DoanhThuTheoNgay`$$
+CREATE
+    DEFINER = `root`@`localhost` PROCEDURE `sp_DoanhThuTheoNgay`(IN `p_ngay_bat_dau` DATE, IN `p_ngay_ket_thuc` DATE)
+BEGIN
 SELECT
     DATE (ngay_dat) as ngay, COALESCE (SUM(gia_ve), 0) as doanh_thu, COUNT(id) as so_ve_ban
 FROM ve_tau
-WHERE DATE (ngay_dat) BETWEEN '2025-01-01'
-  AND '2025-12-31'
+WHERE DATE(ngay_dat) BETWEEN p_ngay_bat_dau
+    AND p_ngay_ket_thuc
   AND trang_thai = 'Đã thanh toán'
 GROUP BY DATE (ngay_dat)
 ORDER BY ngay ASC;
 END$$
 
-DROP PROCEDURE IF EXISTS sp_DoanhThuTheoTuyen $$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_ThongKeDoanhThuTheoTuyen` (IN `p_ngay_bat_dau` DATE, IN `p_ngay_ket_thuc` DATE)   BEGIN
+DROP PROCEDURE IF EXISTS `sp_DoanhThuTheoTuyen`$$
+CREATE
+    DEFINER = `root`@`localhost` PROCEDURE `sp_DoanhThuTheoTuyen`(IN `p_ngay_bat_dau` DATE, IN `p_ngay_ket_thuc` DATE)
+BEGIN
 SELECT td.ten_tuyen,
        COALESCE(SUM(vt.gia_ve), 0) as doanh_thu
 FROM ve_tau vt
@@ -79,8 +88,10 @@ GROUP BY td.ten_tuyen
 ORDER BY doanh_thu DESC;
 END$$
 
-DROP PROCEDURE IF EXISTS sp_KhachHangVIP $$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_ThongKeKhachHangVIP` (IN `p_limit` INT)   BEGIN
+DROP PROCEDURE IF EXISTS `sp_KhachHangVIP`$$
+CREATE
+    DEFINER = `root`@`localhost` PROCEDURE `sp_KhachHangVIP`(IN `p_limit` INT)
+BEGIN
 SELECT kh.ho_ten,
        kh.sdt,
        COUNT(vt.id)                as so_ve_da_mua,
@@ -92,19 +103,18 @@ GROUP BY kh.id
 ORDER BY tong_tien_chi_tieu DESC LIMIT p_limit;
 END$$
 
-DROP PROCEDURE IF EXISTS sp_TyLeLapDay $$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_ThongKeTyLeLapDay` (IN `p_ngay_bat_dau` DATE, IN `p_ngay_ket_thuc` DATE)   BEGIN
+DROP PROCEDURE IF EXISTS `sp_TyLeLapDay`$$
+CREATE
+    DEFINER = `root`@`localhost` PROCEDURE `sp_TyLeLapDay`(IN `p_ngay_bat_dau` DATE, IN `p_ngay_ket_thuc` DATE)
+BEGIN
 SELECT lt.ma_lich_trinh,
        t.ten_tau,
        lt.ngay_di,
-       -- Đếm tổng số ghế của tàu (Dựa vào bảng ghe -> toa -> tau)
        (SELECT COUNT(g.id)
         FROM ghe g
                  JOIN toa_tau tt ON g.id_toa_tau = tt.id
         WHERE tt.id_tau = t.id)                                               AS tong_so_ghe,
-       -- Đếm số vé đã bán (trừ vé hủy)
        COUNT(vt.id)                                                           as ve_da_ban,
-       -- Tính phần trăm
        ROUND((COUNT(vt.id) * 100.0 / NULLIF((SELECT COUNT(g.id)
                                              FROM ghe g
                                                       JOIN toa_tau tt ON g.id_toa_tau = tt.id
@@ -126,16 +136,16 @@ DELIMITER ;
 --
 
 DROP TABLE IF EXISTS `ga_tau`;
-CREATE TABLE IF NOT EXISTS `ga_tau` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+CREATE TABLE `ga_tau`
+(
+    `id`        int(11)      NOT NULL,
   `ma_ga` varchar(20) NOT NULL COMMENT 'VD: HN, DN, SG',
   `ten_ga` varchar(100) NOT NULL COMMENT 'VD: Ga Hà Nội',
   `dia_chi` varchar(255) DEFAULT NULL,
-  `thanh_pho` varchar(255) NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `ma_ga` (`ma_ga`),
-  UNIQUE KEY `ten_ga` (`ten_ga`)
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    `thanh_pho` varchar(255) NOT NULL
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_unicode_ci;
 
 --
 -- Đang đổ dữ liệu cho bảng `ga_tau`
@@ -160,14 +170,14 @@ INSERT INTO `ga_tau` (`id`, `ma_ga`, `ten_ga`, `dia_chi`, `thanh_pho`) VALUES
 --
 
 DROP TABLE IF EXISTS `ghe`;
-CREATE TABLE IF NOT EXISTS `ghe` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+CREATE TABLE `ghe`
+(
+    `id`         int(11) NOT NULL,
   `so_ghe` varchar(10) NOT NULL COMMENT 'VD: A1, B2',
-  `id_toa_tau` int(11) NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `unique_ghe_trong_toa` (`so_ghe`,`id_toa_tau`),
-  KEY `id_toa_tau` (`id_toa_tau`)
-) ENGINE=InnoDB AUTO_INCREMENT=49 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    `id_toa_tau` int(11) NOT NULL
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_unicode_ci;
 
 --
 -- Đang đổ dữ liệu cho bảng `ghe`
@@ -230,18 +240,18 @@ INSERT INTO `ghe` (`id`, `so_ghe`, `id_toa_tau`) VALUES
 --
 
 DROP TABLE IF EXISTS `khach_hang`;
-CREATE TABLE IF NOT EXISTS `khach_hang` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+CREATE TABLE `khach_hang`
+(
+    `id`      int(11)      NOT NULL,
   `cccd` varchar(20) DEFAULT NULL,
   `ho_ten` varchar(100) NOT NULL,
   `ngay_sinh` date DEFAULT curdate(),
   `gioi_tinh` varchar(20) NOT NULL,
   `sdt` varchar(20) NOT NULL,
-  `dia_chi` varchar(255) NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `sdt` (`sdt`),
-  UNIQUE KEY `cccd` (`cccd`)
-) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    `dia_chi` varchar(255) NOT NULL
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_unicode_ci;
 
 --
 -- Đang đổ dữ liệu cho bảng `khach_hang`
@@ -276,19 +286,18 @@ INSERT INTO `khach_hang` (`id`, `cccd`, `ho_ten`, `ngay_sinh`, `gioi_tinh`, `sdt
 --
 
 DROP TABLE IF EXISTS `lich_trinh`;
-CREATE TABLE IF NOT EXISTS `lich_trinh` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+CREATE TABLE `lich_trinh`
+(
+    `id`         int(11)     NOT NULL,
   `ma_lich_trinh` varchar(20) DEFAULT NULL,
   `id_tau` int(11) NOT NULL,
   `id_tuyen_duong` int(11) NOT NULL,
   `ngay_di` datetime NOT NULL,
   `ngay_den` datetime NOT NULL,
-  `trang_thai` varchar(20) NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `unique_tau_schedule` (`id_tau`,`ngay_di`),
-  UNIQUE KEY `ma_lich_trinh` (`ma_lich_trinh`),
-  KEY `id_tuyen_duong` (`id_tuyen_duong`)
-) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    `trang_thai` varchar(20) NOT NULL
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_unicode_ci;
 
 --
 -- Đang đổ dữ liệu cho bảng `lich_trinh`
@@ -316,13 +325,14 @@ INSERT INTO `lich_trinh` (`id`, `ma_lich_trinh`, `id_tau`, `id_tuyen_duong`, `ng
 --
 
 DROP TABLE IF EXISTS `loai_toa`;
-CREATE TABLE IF NOT EXISTS `loai_toa` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+CREATE TABLE `loai_toa`
+(
+    `id`        int(11) NOT NULL,
   `ten_loai` varchar(50) NOT NULL COMMENT 'VD: Ngồi mềm điều hòa, Giường nằm',
-  `he_so_gia` decimal(3,2) DEFAULT 1.00,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `ten_loai` (`ten_loai`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    `he_so_gia` decimal(3, 2) DEFAULT 1.00
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_unicode_ci;
 
 --
 -- Đang đổ dữ liệu cho bảng `loai_toa`
@@ -341,8 +351,9 @@ INSERT INTO `loai_toa` (`id`, `ten_loai`, `he_so_gia`) VALUES
 --
 
 DROP TABLE IF EXISTS `nhan_vien`;
-CREATE TABLE IF NOT EXISTS `nhan_vien` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+CREATE TABLE `nhan_vien`
+(
+    `id`      int(11)     NOT NULL,
   `ma_nhan_vien` varchar(20) NOT NULL,
   `mat_khau` varchar(255) NOT NULL,
   `ho_ten` varchar(100) NOT NULL,
@@ -351,12 +362,10 @@ CREATE TABLE IF NOT EXISTS `nhan_vien` (
   `sdt` varchar(20) NOT NULL,
   `email` varchar(100) DEFAULT NULL,
   `dia_chi` varchar(255) NOT NULL,
-  `vai_tro` varchar(20) NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `ma_nhan_vien` (`ma_nhan_vien`),
-  UNIQUE KEY `sdt` (`sdt`),
-  UNIQUE KEY `email` (`email`)
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    `vai_tro` varchar(20) NOT NULL
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_unicode_ci;
 
 --
 -- Đang đổ dữ liệu cho bảng `nhan_vien`
@@ -380,13 +389,14 @@ INSERT INTO `nhan_vien` (`id`, `ma_nhan_vien`, `mat_khau`, `ho_ten`, `ngay_sinh`
 --
 
 DROP TABLE IF EXISTS `tau`;
-CREATE TABLE IF NOT EXISTS `tau` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+CREATE TABLE `tau`
+(
+    `id`      int(11)      NOT NULL,
   `ma_tau` varchar(20) NOT NULL COMMENT 'VD: SE1, TN1',
-  `ten_tau` varchar(100) NOT NULL COMMENT 'VD: Tàu Thống Nhất SE1',
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `ma_tau` (`ma_tau`)
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    `ten_tau` varchar(100) NOT NULL COMMENT 'VD: Tàu Thống Nhất SE1'
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_unicode_ci;
 
 --
 -- Đang đổ dữ liệu cho bảng `tau`
@@ -410,16 +420,15 @@ INSERT INTO `tau` (`id`, `ma_tau`, `ten_tau`) VALUES
 --
 
 DROP TABLE IF EXISTS `toa_tau`;
-CREATE TABLE IF NOT EXISTS `toa_tau` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+CREATE TABLE `toa_tau`
+(
+    `id`          int(11) NOT NULL,
   `ma_toa` varchar(20) NOT NULL COMMENT 'VD: Toa 1, Toa 2',
   `id_tau` int(11) NOT NULL,
-  `id_loai_toa` int(11) NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `unique_toa_trong_tau` (`ma_toa`,`id_tau`),
-  KEY `id_tau` (`id_tau`),
-  KEY `id_loai_toa` (`id_loai_toa`)
-) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    `id_loai_toa` int(11) NOT NULL
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_unicode_ci;
 
 --
 -- Đang đổ dữ liệu cho bảng `toa_tau`
@@ -446,19 +455,18 @@ INSERT INTO `toa_tau` (`id`, `ma_toa`, `id_tau`, `id_loai_toa`) VALUES
 --
 
 DROP TABLE IF EXISTS `tuyen_duong`;
-CREATE TABLE IF NOT EXISTS `tuyen_duong` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+CREATE TABLE `tuyen_duong`
+(
+    `id`         int(11)        NOT NULL,
   `ma_tuyen` varchar(20) NOT NULL COMMENT 'VD: HN-SG',
   `ten_tuyen` varchar(100) NOT NULL,
   `id_ga_di` int(11) NOT NULL,
   `id_ga_den` int(11) NOT NULL,
   `khoang_cach_km` int(11) DEFAULT NULL,
-  `gia_co_ban` decimal(10,2) NOT NULL COMMENT 'Giá gốc chưa nhân hệ số',
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `ma_tuyen` (`ma_tuyen`),
-  UNIQUE KEY `unique_route` (`id_ga_di`,`id_ga_den`),
-  KEY `id_ga_den` (`id_ga_den`)
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    `gia_co_ban` decimal(10, 2) NOT NULL COMMENT 'Giá gốc chưa nhân hệ số'
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_unicode_ci;
 
 --
 -- Đang đổ dữ liệu cho bảng `tuyen_duong`
@@ -481,8 +489,9 @@ INSERT INTO `tuyen_duong` (`id`, `ma_tuyen`, `ten_tuyen`, `id_ga_di`, `id_ga_den
 --
 
 DROP TABLE IF EXISTS `ve_tau`;
-CREATE TABLE IF NOT EXISTS `ve_tau` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+CREATE TABLE `ve_tau`
+(
+    `id`         int(11)     NOT NULL,
   `ma_ve` varchar(20) NOT NULL,
   `id_khach_hang` int(11) NOT NULL,
   `id_lich_trinh` int(11) NOT NULL,
@@ -490,14 +499,10 @@ CREATE TABLE IF NOT EXISTS `ve_tau` (
   `id_nhan_vien` int(11) DEFAULT NULL,
   `ngay_dat` datetime DEFAULT current_timestamp(),
   `gia_ve` decimal(10,2) NOT NULL,
-  `trang_thai` varchar(20) NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `ma_ve` (`ma_ve`),
-  UNIQUE KEY `unique_booking` (`id_lich_trinh`,`id_ghe`),
-  KEY `id_khach_hang` (`id_khach_hang`),
-  KEY `id_ghe` (`id_ghe`),
-  KEY `id_nhan_vien` (`id_nhan_vien`)
-) ENGINE=InnoDB AUTO_INCREMENT=52 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    `trang_thai` varchar(20) NOT NULL
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_unicode_ci;
 
 --
 -- Đang đổ dữ liệu cho bảng `ve_tau`
@@ -555,6 +560,169 @@ INSERT INTO `ve_tau` (`id`, `ma_ve`, `id_khach_hang`, `id_lich_trinh`, `id_ghe`,
 (49, 'VE-07-20', 10, 13, 13, 7, '2025-07-01 08:00:00', 500000.00, 'Đã hủy'),
 (50, 'VE-07-21', 11, 13, 14, 7, '2025-07-01 08:30:00', 500000.00, 'Đã hủy'),
 (51, 'VE-07-22', 12, 13, 15, 7, '2025-07-02 09:00:00', 500000.00, 'Đã thanh toán');
+
+--
+-- Chỉ mục cho các bảng đã đổ
+--
+
+--
+-- Chỉ mục cho bảng `ga_tau`
+--
+ALTER TABLE `ga_tau`
+    ADD PRIMARY KEY (`id`),
+    ADD UNIQUE KEY `ma_ga` (`ma_ga`),
+    ADD UNIQUE KEY `ten_ga` (`ten_ga`);
+
+--
+-- Chỉ mục cho bảng `ghe`
+--
+ALTER TABLE `ghe`
+    ADD PRIMARY KEY (`id`),
+    ADD UNIQUE KEY `unique_ghe_trong_toa` (`so_ghe`, `id_toa_tau`),
+    ADD KEY `id_toa_tau` (`id_toa_tau`);
+
+--
+-- Chỉ mục cho bảng `khach_hang`
+--
+ALTER TABLE `khach_hang`
+    ADD PRIMARY KEY (`id`),
+    ADD UNIQUE KEY `sdt` (`sdt`),
+    ADD UNIQUE KEY `cccd` (`cccd`);
+
+--
+-- Chỉ mục cho bảng `lich_trinh`
+--
+ALTER TABLE `lich_trinh`
+    ADD PRIMARY KEY (`id`),
+    ADD UNIQUE KEY `unique_tau_schedule` (`id_tau`, `ngay_di`),
+    ADD UNIQUE KEY `ma_lich_trinh` (`ma_lich_trinh`),
+    ADD KEY `id_tuyen_duong` (`id_tuyen_duong`);
+
+--
+-- Chỉ mục cho bảng `loai_toa`
+--
+ALTER TABLE `loai_toa`
+    ADD PRIMARY KEY (`id`),
+    ADD UNIQUE KEY `ten_loai` (`ten_loai`);
+
+--
+-- Chỉ mục cho bảng `nhan_vien`
+--
+ALTER TABLE `nhan_vien`
+    ADD PRIMARY KEY (`id`),
+    ADD UNIQUE KEY `ma_nhan_vien` (`ma_nhan_vien`),
+    ADD UNIQUE KEY `sdt` (`sdt`),
+    ADD UNIQUE KEY `email` (`email`);
+
+--
+-- Chỉ mục cho bảng `tau`
+--
+ALTER TABLE `tau`
+    ADD PRIMARY KEY (`id`),
+    ADD UNIQUE KEY `ma_tau` (`ma_tau`);
+
+--
+-- Chỉ mục cho bảng `toa_tau`
+--
+ALTER TABLE `toa_tau`
+    ADD PRIMARY KEY (`id`),
+    ADD UNIQUE KEY `unique_toa_trong_tau` (`ma_toa`, `id_tau`),
+    ADD KEY `id_tau` (`id_tau`),
+    ADD KEY `id_loai_toa` (`id_loai_toa`);
+
+--
+-- Chỉ mục cho bảng `tuyen_duong`
+--
+ALTER TABLE `tuyen_duong`
+    ADD PRIMARY KEY (`id`),
+    ADD UNIQUE KEY `ma_tuyen` (`ma_tuyen`),
+    ADD UNIQUE KEY `unique_route` (`id_ga_di`, `id_ga_den`),
+    ADD KEY `id_ga_den` (`id_ga_den`);
+
+--
+-- Chỉ mục cho bảng `ve_tau`
+--
+ALTER TABLE `ve_tau`
+    ADD PRIMARY KEY (`id`),
+    ADD UNIQUE KEY `ma_ve` (`ma_ve`),
+    ADD UNIQUE KEY `unique_booking` (`id_lich_trinh`, `id_ghe`),
+    ADD KEY `id_khach_hang` (`id_khach_hang`),
+    ADD KEY `id_ghe` (`id_ghe`),
+    ADD KEY `id_nhan_vien` (`id_nhan_vien`);
+
+--
+-- AUTO_INCREMENT cho các bảng đã đổ
+--
+
+--
+-- AUTO_INCREMENT cho bảng `ga_tau`
+--
+ALTER TABLE `ga_tau`
+    MODIFY `id` int(11) NOT NULL AUTO_INCREMENT,
+    AUTO_INCREMENT = 11;
+
+--
+-- AUTO_INCREMENT cho bảng `ghe`
+--
+ALTER TABLE `ghe`
+    MODIFY `id` int(11) NOT NULL AUTO_INCREMENT,
+    AUTO_INCREMENT = 49;
+
+--
+-- AUTO_INCREMENT cho bảng `khach_hang`
+--
+ALTER TABLE `khach_hang`
+    MODIFY `id` int(11) NOT NULL AUTO_INCREMENT,
+    AUTO_INCREMENT = 21;
+
+--
+-- AUTO_INCREMENT cho bảng `lich_trinh`
+--
+ALTER TABLE `lich_trinh`
+    MODIFY `id` int(11) NOT NULL AUTO_INCREMENT,
+    AUTO_INCREMENT = 14;
+
+--
+-- AUTO_INCREMENT cho bảng `loai_toa`
+--
+ALTER TABLE `loai_toa`
+    MODIFY `id` int(11) NOT NULL AUTO_INCREMENT,
+    AUTO_INCREMENT = 5;
+
+--
+-- AUTO_INCREMENT cho bảng `nhan_vien`
+--
+ALTER TABLE `nhan_vien`
+    MODIFY `id` int(11) NOT NULL AUTO_INCREMENT,
+    AUTO_INCREMENT = 10;
+
+--
+-- AUTO_INCREMENT cho bảng `tau`
+--
+ALTER TABLE `tau`
+    MODIFY `id` int(11) NOT NULL AUTO_INCREMENT,
+    AUTO_INCREMENT = 10;
+
+--
+-- AUTO_INCREMENT cho bảng `toa_tau`
+--
+ALTER TABLE `toa_tau`
+    MODIFY `id` int(11) NOT NULL AUTO_INCREMENT,
+    AUTO_INCREMENT = 13;
+
+--
+-- AUTO_INCREMENT cho bảng `tuyen_duong`
+--
+ALTER TABLE `tuyen_duong`
+    MODIFY `id` int(11) NOT NULL AUTO_INCREMENT,
+    AUTO_INCREMENT = 10;
+
+--
+-- AUTO_INCREMENT cho bảng `ve_tau`
+--
+ALTER TABLE `ve_tau`
+    MODIFY `id` int(11) NOT NULL AUTO_INCREMENT,
+    AUTO_INCREMENT = 52;
 
 --
 -- Các ràng buộc cho các bảng đã đổ
