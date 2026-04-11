@@ -30,7 +30,7 @@ public class NhanVienController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<NhanVienResponse>> getNhanVienByMa(@PathVariable int id) {
+    public ResponseEntity<ApiResponse<NhanVienResponse>> getNhanVienById(@PathVariable int id) {
         NhanVienResponse data = nhanVienService.getNhanVienById(id);
 
         ApiResponse<NhanVienResponse> response = ApiResponse.<NhanVienResponse>builder()
