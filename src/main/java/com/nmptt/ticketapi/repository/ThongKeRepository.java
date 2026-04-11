@@ -54,13 +54,13 @@ public class ThongKeRepository {
         );
     }
 
-    public List<KhachHangVipDTO> getKhachHangVip(int limit) {
+    public List<KhachHangVipDTO> getKhachHangVip(int soLuong) {
         String sql = "CALL sp_KhachHangVIP(?)";
 
         return jdbcTemplate.query(
                 sql,
                 new BeanPropertyRowMapper<>(KhachHangVipDTO.class),
-                limit
+                soLuong
         );
     }
 

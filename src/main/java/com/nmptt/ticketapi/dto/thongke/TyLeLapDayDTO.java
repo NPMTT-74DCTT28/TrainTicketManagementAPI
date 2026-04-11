@@ -6,5 +6,5 @@ import lombok.Data;
 public class TyLeLapDayDTO {
     private String maLichTrinh;
     private String tenTau;
-    private double tyLelapDay;
+    private double tyLeLapDay;
 }
