@@ -37,7 +37,7 @@ GROUP BY DATE (ngay_dat)
 ORDER BY ngay ASC;
 END$$
 
-DROP PROCEDURE IF EXISTS `sp_ThongKeDoanhSo`$$
+DROP PROCEDURE IF EXISTS sp_DoanhSo $$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_ThongKeDoanhSo` (IN `p_thang` INT, IN `p_nam` INT)   BEGIN
 SELECT nv.ma_nhan_vien,
        nv.ho_ten,
@@ -53,7 +53,7 @@ GROUP BY nv.id
 ORDER BY doanh_so DESC;
 END$$
 
-DROP PROCEDURE IF EXISTS `sp_ThongKeDoanhThuTheoNgay`$$
+DROP PROCEDURE IF EXISTS sp_DoanhThuTheoNgay $$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_ThongKeDoanhThuTheoNgay` (IN `p_ngay_bat_dau` DATE, IN `p_ngay_ket_thuc` DATE)   BEGIN
 SELECT
     DATE (ngay_dat) as ngay, COALESCE (SUM(gia_ve), 0) as doanh_thu, COUNT(id) as so_ve_ban
@@ -65,7 +65,7 @@ GROUP BY DATE (ngay_dat)
 ORDER BY ngay ASC;
 END$$
 
-DROP PROCEDURE IF EXISTS `sp_ThongKeDoanhThuTheoTuyen`$$
+DROP PROCEDURE IF EXISTS sp_DoanhThuTheoTuyen $$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_ThongKeDoanhThuTheoTuyen` (IN `p_ngay_bat_dau` DATE, IN `p_ngay_ket_thuc` DATE)   BEGIN
 SELECT td.ten_tuyen,
        COALESCE(SUM(vt.gia_ve), 0) as doanh_thu
@@ -79,7 +79,7 @@ GROUP BY td.ten_tuyen
 ORDER BY doanh_thu DESC;
 END$$
 
-DROP PROCEDURE IF EXISTS `sp_ThongKeKhachHangVIP`$$
+DROP PROCEDURE IF EXISTS sp_KhachHangVIP $$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_ThongKeKhachHangVIP` (IN `p_limit` INT)   BEGIN
 SELECT kh.ho_ten,
        kh.sdt,
@@ -92,7 +92,7 @@ GROUP BY kh.id
 ORDER BY tong_tien_chi_tieu DESC LIMIT p_limit;
 END$$
 
-DROP PROCEDURE IF EXISTS `sp_ThongKeTyLeLapDay`$$
+DROP PROCEDURE IF EXISTS sp_TyLeLapDay $$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_ThongKeTyLeLapDay` (IN `p_ngay_bat_dau` DATE, IN `p_ngay_ket_thuc` DATE)   BEGIN
 SELECT lt.ma_lich_trinh,
        t.ten_tau,

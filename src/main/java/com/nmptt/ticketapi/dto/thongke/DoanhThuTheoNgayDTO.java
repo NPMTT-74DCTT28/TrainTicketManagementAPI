@@ -5,7 +5,7 @@ import lombok.Data;
 import java.time.LocalDate;
 
 @Data
-public class DoanhThuNgayDTO {
+public class DoanhThuTheoNgayDTO {
     private LocalDate ngay;
     private int soVeBan;
     private double doanhThu;

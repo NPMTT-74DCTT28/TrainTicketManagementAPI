@@ -4,13 +4,13 @@ import com.nmptt.ticketapi.entity.GaTau;
 import com.nmptt.ticketapi.exception.DuplicateDataException;
 import com.nmptt.ticketapi.exception.ResourceNotFoundException;
 import com.nmptt.ticketapi.repository.GaTauRepository;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class GaTauServiceImpl implements GaTauService {
     private final GaTauRepository gaTauRepository;
 

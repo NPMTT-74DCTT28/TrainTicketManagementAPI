@@ -3,7 +3,7 @@ package com.nmptt.ticketapi.controller;
 import com.nmptt.ticketapi.dto.response.ApiResponse;
 import com.nmptt.ticketapi.entity.GaTau;
 import com.nmptt.ticketapi.service.GaTauService;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,7 +12,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/ga_tau")
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class GaTauController {
     private final GaTauService gaTauService;
 
