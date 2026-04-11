@@ -3,7 +3,7 @@ package com.nmptt.ticketapi.controller;
 import com.nmptt.ticketapi.dto.response.ApiResponse;
 import com.nmptt.ticketapi.entity.GaTau;
 import com.nmptt.ticketapi.service.GaTauService;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,9 +12,10 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/ga_tau")
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class GaTauController {
     private final GaTauService gaTauService;
+
     @GetMapping
     public ResponseEntity<ApiResponse<List<GaTau>>> getAllGaTau() {
         List<GaTau> data = gaTauService.getAllGaTau();
@@ -25,6 +26,7 @@ public class GaTauController {
                 .build();
         return ResponseEntity.ok(response);
     }
+
     @PostMapping
     public ResponseEntity<ApiResponse<GaTau>> createGaTau(@RequestBody GaTau gaTau) {
         GaTau data = gaTauService.createGaTau(gaTau);
@@ -35,6 +37,7 @@ public class GaTauController {
                 .build();
         return ResponseEntity.ok(response);
     }
+
     @PutMapping
     public ResponseEntity<ApiResponse<GaTau>> updateGaTau(@RequestBody GaTau gaTau) {
         GaTau data = gaTauService.updateGaTau(gaTau);
@@ -55,6 +58,7 @@ public class GaTauController {
                 .build();
         return ResponseEntity.ok(response);
     }
+
     @GetMapping("/search")
     public ResponseEntity<ApiResponse<List<GaTau>>> searchGaTau(
             @RequestParam(required = false, defaultValue = "") String key) {
