@@ -28,6 +28,16 @@ public class TuyenDuongController {
                 .build();
         return ResponseEntity.ok(response);
     }
+    @GetMapping("/{id}")
+    public ResponseEntity<ApiResponse<TuyenDuongResponse>> getTuyenDuongByMa(@PathVariable Integer id) {
+        TuyenDuongResponse data = tuyenDuongService.getTuyenDuongById(id);
+        ApiResponse<TuyenDuongResponse> response = ApiResponse.<TuyenDuongResponse>builder()
+                .code(HttpStatus.OK.value())
+                .message("Lấy thông tin tuyến đường thành công!")
+                .data(data)
+                .build();
+        return ResponseEntity.ok(response);
+    }
     @PostMapping
     public ResponseEntity<ApiResponse<TuyenDuongResponse>> createTuyenDuong(@RequestBody TuyenDuongRequest tuyenDuong) {
         TuyenDuongResponse data = tuyenDuongService.createTuyenDuong(tuyenDuong);
