@@ -26,7 +26,16 @@ public class GaTauController {
                 .build();
         return ResponseEntity.ok(response);
     }
-
+    @GetMapping("/{id}")
+    public ResponseEntity<ApiResponse<GaTau>> getGaTauByMa(@PathVariable Integer id) {
+        GaTau data = gaTauService.getGaTauById(id);
+        ApiResponse<GaTau> response = ApiResponse.<GaTau>builder()
+                .code(HttpStatus.OK.value())
+                .message("Lấy thông tin ga tàu thành công!")
+                .data(data)
+                .build();
+        return ResponseEntity.ok(response);
+    }
     @PostMapping
     public ResponseEntity<ApiResponse<GaTau>> createGaTau(@RequestBody GaTau gaTau) {
         GaTau data = gaTauService.createGaTau(gaTau);
